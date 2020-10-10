@@ -37,52 +37,35 @@ function afterConnection(){
             "View Department",
             "View Roles",
             "View Employees",
-            "Update Employee Roles"
+            "Update Employee Roles",
+            "LEAVE!!!!!!"
         ]
     }])
     .then(answer => {        
-        console.log(`Hello Friend`)
         if (answer.intitial === "Add Department"){
             addDepartment();
-            connection.end();
-            return;
-
         }
         else if (answer.intitial === "Add Role"){
             addRole();
-            connection.end();
-            return;
-
         }
         else if (answer.intitial === "Add Employee"){
             addEmployee();
-            connection.end();
-            return;
-
         }
         else if (answer.intitial === "View Department"){
             viewDepartment();
-            connection.end();
-            return;
-
         }
         else if (answer.intitial === "View Roles"){
             viewRoles();
-            connection.end();
-            return;
-
         }
         else if (answer.intitial === "View Employees"){
             viewEmployees();
-            connection.end();
-            return;
-
         }
         else if (answer.intitial === "Update Employee Roles"){
             updateEmployee();
+        }
+        else if (answer.intitial === "LEAVE!!!!!!"){
             connection.end();
             return;
-
         }
         else{
             console.log(`You need to pick`);
@@ -93,10 +76,56 @@ function afterConnection(){
 }
 
 function addDepartment(){
-    console.log(`1`);
+    inquirer
+    .prompt([{
+        type: "input",
+        name: "dept",
+        message:"What department do you want to add?",
+    }])
+    .then(answer => {        
+            connection.query("INSERT INTO department SET ?", {name:answer.dept}, function(err, res) {
+                if (err) throw err;
+                anotherOne();
+            }); 
+        });
 };
+
 function addRole(){
-    console.log(`2`);
+    inquirer
+    .prompt([{
+        type: "input",
+        name: "title",
+        message:"What is the role's title?",
+    },
+    {
+        type: "input",
+        name: "salary",
+        message:"What is the role's salary?",
+    },
+    {
+        type: "input",
+        name: "deptid",
+        message:"What department does the role belong to?",
+    },
+])
+    .then(answer => { 
+        //query of departments
+        localDept = connection.query("SELECT * FROM department")
+        console.log(localDept)
+        //answer.deptid string matching ==
+        // if (answer.deptid == ) {
+            
+        // }
+        //does answer.deptid exist in department table
+        //if so, what is it's id# in department table
+        //if not, create department in department table and record it's ID
+        //whichever rusult you get should output the ID from department table
+        
+            connection.query("INSERT INTO role SET ?", {title:answer.title, salary:answer.salary, department_id:answer.deptid }, function(err, res) {
+                if (err) throw err;
+                anotherOne();
+            }); 
+        });
 };
 function addEmployee(){
     console.log(`3`);
@@ -107,7 +136,7 @@ function viewDepartment(){
         for (var i = 0; i < res.length; i++) {
         console.log(res[i].id + " | " + res[i].name);
         }
-        console.log("-----------------------------------");
+        anotherOne();
     });    
 };
 function viewRoles(){
@@ -119,3 +148,25 @@ function viewEmployees(){
 function updateEmployee(){
     console.log(`7`);
 };
+
+function anotherOne(){
+    inquirer
+    .prompt([{
+        type: "list",
+        name: "anotherone",
+        message:"Would you like to do something else?",
+        choices: [
+            "Yes",
+            "No, I'm done",
+        ]
+    }])
+    .then(answer => { 
+        if (answer.anotherone === "Yes"){
+            afterConnection();
+        }
+        if (answer.anotherone === "No, I'm done"){
+            connection.end();
+            return;
+        }
+    })
+}

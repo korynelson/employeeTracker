@@ -11,7 +11,7 @@ CREATE TABLE department(
     PRIMARY KEY (id)
 ) ;
 
-CREATE TABLE employee_role(
+CREATE TABLE role(
 	id INTEGER NOT NULL AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
     salary DECIMAL NOT NULL,
@@ -30,10 +30,5 @@ CREATE TABLE employee(
 
 INSERT INTO department (name) values ('Human');
 INSERT INTO department (name) values ('Brainstorming');
-INSERT INTO employee_role (title, salary) values ('Thinker', 5 );  
-INSERT INTO employee_role (title, salary) values ('brain', 7 );  
-
-
-SELECT department_id
-FROM employee_role
-INNER JOIN department ON employee_role.department_id = department.id;
+INSERT INTO role (title, salary) values ('Thinker', 5 );  
+INSERT INTO role (title, salary) values ('brain', 7 );  
