@@ -32,98 +32,88 @@ function afterConnection() {
       'Update Employee Roles',
       'LEAVE!!!!!!',
     ],
-}])
-.then(answer => {        
-if (answer.intitial === "Add Department"){
-addDepartment();
-}
-else if (answer.intitial === "Add Role"){
-addRole();
-}
-else if (answer.intitial === "Add Employee"){
-addEmployee();
-}
-else if (answer.intitial === "View Department"){
-viewDepartment();
-}
-else if (answer.intitial === "View Roles"){
-viewRoles();
-}
-else if (answer.intitial === "View Employees"){
-viewEmployees();
-}
-else if (answer.intitial === "Update Employee Roles"){
-updateEmployee();
-}
-else if (answer.intitial === "LEAVE!!!!!!"){
-connection.end();
-return;
-}
-else{
-console.log(`You need to pick`);
-connection.end();
-return;
-}
-})
+  }])
+    .then(answer => {
+      if (answer.intitial === 'Add Department') {
+        addDepartment();
+      } else if (answer.intitial === 'Add Role') {
+        addRole();
+      } else if (answer.intitial === 'Add Employee') {
+        addEmployee();
+      } else if (answer.intitial === 'View Department') {
+        viewDepartment();
+      } else if (answer.intitial === 'View Roles') {
+        viewRoles();
+      } else if (answer.intitial === 'View Employees') {
+        viewEmployees();
+      } else if (answer.intitial === 'Update Employee Roles') {
+        updateEmployee();
+      } else if (answer.intitial === 'LEAVE!!!!!!') {
+        connection.end();
+      } else{
+        console.log('You need to pick');
+        connection.end();
+      }
+    });
 }
 
-function addDepartment(){
-    inquirer
+function addDepartment() {
+  inquirer
     .prompt([{
-        type: "input",
-        name: "dept",
-        message:"What department do you want to add?",
+      type: 'input',
+      name: 'dept',
+      message: 'What department do you want to add?',
     }])
-    .then(answer => {        
-            connection.query("INSERT INTO department SET ?", {name:answer.dept}, function(err, res) {
-                if (err) throw err;
-                anotherOne();
-            }); 
-        });
-};
+    .then((answer) => {
+      connection.query('INSERT INTO department SET ?', { name: answer.dept }, (err, res) => {
+        if (err) throw err;
+        anotherOne();
+      });
+    });
+}
 
-function addRole(){
-    inquirer
+function addRole() {
+  inquirer
     .prompt([{
-        type: "input",
-        name: "title",
-        message:"What is the role's title?",
+      type: 'input',
+      name: 'title',
+      message: 'What is the roles title?',
     },
     {
-        type: "input",
-        name: "salary",
-        message:"What is the role's salary?",
+      type: 'input',
+      name: 'salary',
+      message: 'What is the roles salary?',
     },
     {
-        type: "input",
-        name: "deptid",
-        message:"What department does the role belong to?",
+      type: 'input',
+      name: 'deptid',
+      message: 'What department does the role belong to?',
     },
-])
-    .then(answer => { 
-        //query of departments
-        connection.query("SELECT name FROM department",function(err, res) {
-            if (err) throw err;
-            for (var i = 0; i < res.length; i++) {
-            console.log(res[i].name);
-            }
-        });
+    ])
+    .then((answer) => {
+    // query of departments
+      connection.query('SELECT name FROM department', (err, res) => {
+        if (err) throw err;
+        for (var i = 0; i < res.length; i++) {
+        console.log(res[i].name);
+        }
+    });
 
-        console.log()
-        //answer.deptid string matching ==
-        // if (answer.deptid == ) {
-            
-        // }
-        //does answer.deptid exist in department table
-        //if so, what is it's id# in department table
-        //if not, create department in department table and record it's ID
-        //whichever rusult you get should output the ID from department table
+    console.log()
+    //answer.deptid string matching ==
+    // if (answer.deptid == ) {
         
-            connection.query("INSERT INTO role SET ?", {title:answer.title, salary:answer.salary, department_id:answer.deptid }, function(err, res) {
-                if (err) throw err;
-                anotherOne();
-            }); 
-        });
+    // }
+    //does answer.deptid exist in department table
+    //if so, what is it's id# in department table
+    //if not, create department in department table and record it's ID
+    //whichever rusult you get should output the ID from department table
+    
+        connection.query("INSERT INTO role SET ?", {title:answer.title, salary:answer.salary, department_id:answer.deptid }, function(err, res) {
+            if (err) throw err;
+            anotherOne();
+        }); 
+    });
 };
 function addEmployee(){
   console.log(`3`);
