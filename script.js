@@ -1,5 +1,6 @@
-const inquirer = require ('inquirer');
-const mysql = require("mysql");
+const inquirer = require('inquirer'),
+const mysql = require('mysql'),
+const cTable = require('console.table'),
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -21,9 +22,7 @@ connection.connect(function(err) {
     afterConnection();
   });
 
-
-
-//initial prompt
+// initial prompt
 function afterConnection(){
     inquirer
     .prompt([{
@@ -110,8 +109,14 @@ function addRole(){
 ])
     .then(answer => { 
         //query of departments
-        localDept = connection.query("SELECT * FROM department")
-        console.log(localDept)
+        connection.query("SELECT name FROM department",function(err, res) {
+            if (err) throw err;
+            for (var i = 0; i < res.length; i++) {
+            console.log(res[i].name);
+            }
+        });
+
+        console.log()
         //answer.deptid string matching ==
         // if (answer.deptid == ) {
             

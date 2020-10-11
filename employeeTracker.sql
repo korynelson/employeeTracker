@@ -28,6 +28,8 @@ CREATE TABLE employee(
     PRIMARY KEY (id)
 );
 
+
+--test data --
 INSERT INTO department (name) values ('Human');
 INSERT INTO department (name) values ('Brainstorming');
 INSERT INTO role (title, salary) values ('Thinker', 5 );  
