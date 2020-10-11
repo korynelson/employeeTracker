@@ -1,77 +1,70 @@
-const inquirer = require('inquirer'),
-const mysql = require('mysql'),
-const cTable = require('console.table'),
+const inquirer = require('inquirer');
+const mysql = require('mysql');
+const cTable = require('console.table');
 
 const connection = mysql.createConnection({
-  host: "localhost",
-
-  // Your port; if not 3306
+  host: 'localhost',
   port: 3306,
-
-  // Your username
-  user: "root",
-
-  // Your password
-  password: "password",
-  database: "employeetracker"
+  user: 'root',
+  password: 'password',
+  database: 'employeetracker',
 });
 
-connection.connect(function(err) {
-    if (err) throw err;
-    console.log("connected as id " + connection.threadId);
-    afterConnection();
-  });
+connection.connect((err) => {
+  if (err) throw err;
+  console.log(`connected as id ${connection.threadId}`);
+  afterConnection();
+});
 
 // initial prompt
-function afterConnection(){
-    inquirer
-    .prompt([{
-        type: "list",
-        name: "intitial",
-        message:"What would you like to do?",
-        choices: [
-            "Add Department",
-            "Add Role",
-            "Add Employee",
-            "View Department",
-            "View Roles",
-            "View Employees",
-            "Update Employee Roles",
-            "LEAVE!!!!!!"
-        ]
-    }])
-    .then(answer => {        
-        if (answer.intitial === "Add Department"){
-            addDepartment();
-        }
-        else if (answer.intitial === "Add Role"){
-            addRole();
-        }
-        else if (answer.intitial === "Add Employee"){
-            addEmployee();
-        }
-        else if (answer.intitial === "View Department"){
-            viewDepartment();
-        }
-        else if (answer.intitial === "View Roles"){
-            viewRoles();
-        }
-        else if (answer.intitial === "View Employees"){
-            viewEmployees();
-        }
-        else if (answer.intitial === "Update Employee Roles"){
-            updateEmployee();
-        }
-        else if (answer.intitial === "LEAVE!!!!!!"){
-            connection.end();
-            return;
-        }
-        else{
-            console.log(`You need to pick`);
-            connection.end();
-            return;
-        }
-    })
+function afterConnection() {
+  inquirer.prompt([{
+    type: 'list',
+    name: 'intitial',
+    message: 'What would you like to do?',
+    choices: [
+      'Add Department',
+      'Add Role',
+      'Add Employee',
+      'View Department',
+      'View Roles',
+      'View Employees',
+      'Update Employee Roles',
+      'LEAVE!!!!!!',
+    ],
+}])
+.then(answer => {        
+if (answer.intitial === "Add Department"){
+addDepartment();
+}
+else if (answer.intitial === "Add Role"){
+addRole();
+}
+else if (answer.intitial === "Add Employee"){
+addEmployee();
+}
+else if (answer.intitial === "View Department"){
+viewDepartment();
+}
+else if (answer.intitial === "View Roles"){
+viewRoles();
+}
+else if (answer.intitial === "View Employees"){
+viewEmployees();
+}
+else if (answer.intitial === "Update Employee Roles"){
+updateEmployee();
+}
+else if (answer.intitial === "LEAVE!!!!!!"){
+connection.end();
+return;
+}
+else{
+console.log(`You need to pick`);
+connection.end();
+return;
+}
+})
 }
 
 function addDepartment(){
@@ -133,14 +126,12 @@ function addRole(){
         });
 };
 function addEmployee(){
-    console.log(`3`);
+  console.log(`3`);
 };
-function viewDepartment(){   
-    connection.query("SELECT * FROM department", function(err, res) {
+function viewDepartment() {   
+  connection.query("SELECT * FROM department",function (err, res) {
         if (err) throw err;
-        for (var i = 0; i < res.length; i++) {
-        console.log(res[i].id + " | " + res[i].name);
-        }
+        console.table(res);
         anotherOne();
     });    
 };
