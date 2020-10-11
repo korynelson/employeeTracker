@@ -15,6 +15,7 @@ connection.connect((err) => {
   console.log(`connected as id ${connection.threadId}`);
   afterConnection();
 });
+// Define functions
 
 // initial prompt
 function afterConnection() {
@@ -94,65 +95,61 @@ function addRole() {
     // query of departments
       connection.query('SELECT name FROM department', (err, res) => {
         if (err) throw err;
-        for (var i = 0; i < res.length; i++) {
-        console.log(res[i].name);
-        }
-    });
-
-    console.log()
-    //answer.deptid string matching ==
-    // if (answer.deptid == ) {
-        
-    // }
-    //does answer.deptid exist in department table
-    //if so, what is it's id# in department table
-    //if not, create department in department table and record it's ID
-    //whichever rusult you get should output the ID from department table
-    
-        connection.query("INSERT INTO role SET ?", {title:answer.title, salary:answer.salary, department_id:answer.deptid }, function(err, res) {
-            if (err) throw err;
-            anotherOne();
-        }); 
-    });
-};
-function addEmployee(){
-  console.log(`3`);
-};
-function viewDepartment() {   
-  connection.query("SELECT * FROM department",function (err, res) {
-        if (err) throw err;
         console.table(res);
-        anotherOne();
-    });    
-};
-function viewRoles(){
-    console.log(`5`);
-};
-function viewEmployees(){
-    console.log(`6`);
-};
-function updateEmployee(){
-    console.log(`7`);
-};
+      });
 
-function anotherOne(){
-    inquirer
+      console.log();
+      // answer.deptid string matching ==
+      // if (answer.deptid == ) {
+      // }
+      // does answer.deptid exist in department table
+      // if so, what is it's id# in department table
+      // if not, create department in department table and record it's ID
+      // whichever rusult you get should output the ID from department table
+
+      connection.query('INSERT INTO role SET ?', { title: answer.title, salary: answer.salary, department_id: answer.deptid }, (err, res) => {
+        if (err) throw err;
+        anotherOne();
+      });
+    });
+}
+function addEmployee() {
+}
+
+function viewDepartment() {
+  connection.query('SELECT * FROM department', (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    anotherOne();
+  });
+}
+
+function viewRoles() {
+}
+
+function viewEmployees() {
+}
+
+function updateEmployee() {
+}
+
+function anotherOne() {
+  inquirer
     .prompt([{
-        type: "list",
-        name: "anotherone",
-        message:"Would you like to do something else?",
-        choices: [
-            "Yes",
-            "No, I'm done",
-        ]
+      type: 'list',
+      name: 'anotherone',
+      message: 'Would you like to do something else?',
+      choices: [
+        'Yes',
+        'No, Im done',
+      ],
     }])
-    .then(answer => { 
-        if (answer.anotherone === "Yes"){
-            afterConnection();
-        }
-        if (answer.anotherone === "No, I'm done"){
-            connection.end();
-            return;
-        }
-    })
+    .then((answer) => {
+      if (answer.anotherone === 'Yes') {
+        afterConnection();
+      }
+      if (answer.anotherone === 'No, Im done') {
+        connection.end();
+      }
+    });
 }
