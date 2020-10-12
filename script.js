@@ -42,11 +42,11 @@ function afterConnection() {
       } else if (answer.intitial === 'Add Employee') {
         addEmployee();
       } else if (answer.intitial === 'View Department') {
-        viewDepartment();
+        viewDepartment(anotherOne);
       } else if (answer.intitial === 'View Roles') {
-        viewRoles();
+        viewRoles(anotherOne);
       } else if (answer.intitial === 'View Employees') {
-        viewEmployees();
+        viewEmployees(anotherOne);
       } else if (answer.intitial === 'Update Employee Roles') {
         updateEmployee();
       } else if (answer.intitial === 'LEAVE!!!!!!') {
@@ -59,27 +59,31 @@ function afterConnection() {
 }
 
 function addDepartmentQuestions() {
-  inquirer
-    .prompt([{
-      type: 'input',
-      name: 'dept',
-      message: 'What department do you want to add?',
-    }])
-    .then((answer) => {
-      addDepartment(answer.dept);
-    });
+  connection.query('SELECT * FROM department', (err, res) =>{
+    console.log('Here are the departments already created');
+    console.table(res);
+    inquirer
+      .prompt([{
+        type: 'input',
+        name: 'dept',
+        message: 'What department do you want to add?',
+      }])
+      .then((answer) => {
+        addDepartment(answer.dept);
+      });
+  });
 }
 
 function addDepartment(dept) {
   connection.query(`SELECT * FROM department WHERE name = "${dept}"`, (err, res) => {
     if (err) throw err;
-    else if (res.length === 0){
+    else if (res.length === 0) {
       connection.query('INSERT INTO department SET ?', { name: dept }, (err, res) => {
         if (err) throw err;
         return res.insertId;
       });
     }
-    else if (res.length > 0){
+    else if (res.length > 0) {
       console.log('That department already exists.');
       anotherOne();
     }else{
@@ -141,18 +145,31 @@ function addRole(name, money, deptid) {
 function addEmployee() {
 }
 
-function viewDepartment() {
+function viewDepartment(callback) {
   connection.query('SELECT * FROM department', (err, res) => {
     if (err) throw err;
+    console.log('Here are the current departments\n');
     console.table(res);
-    anotherOne();
+    callback();
   });
 }
 
-function viewRoles() {
+function viewRoles(callback) {
+  connection.query('SELECT * FROM role', (err, res) => {
+    if (err) throw err;
+    console.log('Here are the current roles\n');
+    console.table(res);
+    callback();
+  });
 }
 
-function viewEmployees() {
+function viewEmployees(callback) {
+  connection.query('SELECT * FROM employee', (err, res) => {
+    if (err) throw err;
+    console.log('Here are the current employees\n');
+    console.table(res);
+    callback();
+  });
 }
 
 function updateEmployee() {
