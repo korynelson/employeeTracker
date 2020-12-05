@@ -36,11 +36,11 @@ function afterConnection() {
   }])
     .then(answer => {
       if (answer.intitial === 'Add Department') {
-        addDepartmentQuestions();
+        addDepartmentQuestions(anotherOne);
       } else if (answer.intitial === 'Add Role') {
-        addRoleQuestions();
+        addRoleQuestions(anotherOne);
       } else if (answer.intitial === 'Add Employee') {
-        addEmployee();
+        addEmployeeQuestions(anotherOne);
       } else if (answer.intitial === 'View Department') {
         viewDepartment(anotherOne);
       } else if (answer.intitial === 'View Roles') {
@@ -58,9 +58,9 @@ function afterConnection() {
     });
 }
 
-function addDepartmentQuestions() {
+function addDepartmentQuestions(callback) {
   connection.query('SELECT * FROM department', (err, res) =>{
-    console.log('Here are the departments already created');
+    console.log('Here are the departments already created\n');
     console.table(res);
     inquirer
       .prompt([{
@@ -69,87 +69,128 @@ function addDepartmentQuestions() {
         message: 'What department do you want to add?',
       }])
       .then((answer) => {
-        addDepartment(answer.dept);
+        addDepartment(answer.dept, callback);
       });
   });
 }
 
-function addDepartment(dept) {
-  connection.query(`SELECT * FROM department WHERE name = "${dept}"`, (err, res) => {
+function addDepartment(dept, callback) {
+  connection.query('INSERT INTO department SET ?', { name: dept }, (err, res) => {
     if (err) throw err;
-    else if (res.length === 0) {
-      connection.query('INSERT INTO department SET ?', { name: dept }, (err, res) => {
-        if (err) throw err;
-        return res.insertId;
-      });
-    }
-    else if (res.length > 0) {
-      console.log('That department already exists.');
-      anotherOne();
-    }else{
-      console.log('Something went wrong');
-      anotherOne();
-    }
+    connection.query('SELECT * FROM department', (err, res) =>{
+      console.log('Here is the updated department list\n');
+      console.table(res);
+      callback();
+    });
   });
 }
 
-function addRoleQuestions() {
-  inquirer
-    .prompt([{
-      type: 'input',
-      name: 'title',
-      message: 'What is the roles title?',
-    },
-    {
-      type: 'input',
-      name: 'salary',
-      message: 'What is the roles salary?',
-    },
-    {
-      type: 'input',
-      name: 'deptid',
-      message: 'What department does the role belong to?',
-    },
-    ])
-    .then((answer) => {
-    // Search for any exisiting department with the same name
-      connection.query(`SELECT * FROM department WHERE name = "${answer.deptid}"`, (err, res) => {
-        if (err) throw err;
-        // if department "undefined" then we should make a new one!!!!
-        if (res.length === 0) {
-          console.log('That department doesnt exist yet - creating it now...');
-          let index = addDepartment(answer.deptid.toLowerCase());
-          addRole(answer.title.toLowerCase(), answer.salary, index);
-          anotherOne();
-          // if department is already defined then we create the role with response id
-        } else if (res.length > 0) {
-          const resId = res[0].id;
-          console.log('made it');
-          addRole(answer.title.toLowerCase(), answer.salary, resId);
-          anotherOne();
-          // Handle other cases
-        } else{
-          console.log('error - enter a correct department')
-          anotherOne();
-        }
-      });
+function addRoleQuestions(callback) {
+  connection.query('SELECT name FROM department', (err1, res1) => {
+    if (err1) throw err1;
+    console.log('Here are the current departments\n');
+    console.table(res1);
+
+    connection.query('SELECT * FROM role', (err, res) => {
+      if (err) throw err;
+      console.log('Here are the current roles\n');
+      console.table(res);
+      inquirer
+        .prompt([{
+          type: 'input',
+          name: 'name',
+          message: 'What is the roles title?',
+        },
+        {
+          type: 'input',
+          name: 'salary',
+          message: 'What is the roles salary?',
+        },
+        {
+          type: 'list',
+          name: 'department',
+          message: 'What department does this role belong to?',
+          choices: res1,
+        },
+        ])
+        .then((answer) => {
+          connection.query(`SELECT id FROM department WHERE name="${answer.department}"`, (errDept, resID) => {
+            if (errDept) throw errDept;
+            console.log('Here is the updated roles list\n');
+            console.log(resID[0].id);
+            addRole(answer.name.toLowerCase(), answer.salary, resID[0].id, callback);
+          });
+        });
     });
+  });
 }
 
-function addRole(name, money, deptid) {
-  connection.query('INSERT INTO role SET ?', { title: name, salary: money, department_id: deptid }, (err2) => {
+function addRole(name, money, deptid, callback) {
+  connection.query('INSERT INTO role SET ?', { name: name, salary: money, department_id: deptid }, (err2) => {
+    if (err2) throw err2;
+    callback();
+  });
+}
+
+function addEmployeeQuestions() {
+  connection.query('SELECT name FROM role', (errRole, resRole) => {
+    if (errRole) throw errRole;
+    console.table(resRole);
+
+    connection.query('SELECT * FROM employee', (errEmp, resEmp) => {
+      if (errEmp) throw errEmp;
+      console.log('Here are the current employees\n');
+      console.table(resEmp);
+      inquirer
+        .prompt([{
+          type: 'input',
+          name: 'firstname',
+          message: 'What is the employees first name?',
+        },
+        {
+          type: 'input',
+          name: 'lastname',
+          message: 'What is the employees last name?',
+        },
+        {
+          type: 'list',
+          name: 'role',
+          message: 'What is the employees role id?',
+          choices: resRole,
+        },
+        {
+          type: 'input',
+          name: 'manager',
+          message: 'What is this employees manager ID?',
+        },
+        ]).then((answer) => {
+          connection.query(`SELECT id FROM role WHERE name="${answer.role}"`, (err, resID) => {
+            if (err) throw err;
+            console.log('Here is the updated roles list\n');
+            console.log(resID[0].id);
+            addEmployee(
+              answer.firstname.toLowerCase(),
+              answer.lastname.toLowerCase(),
+              resID[0].id,
+              answer.manager,
+            );
+          });
+        });
+    });
+  });
+}
+
+function addEmployee(firstname, lastname, roleID, manager) {
+  connection.query('INSERT INTO employee SET ?', { first_name: firstname, last_name: lastname, role_id: roleID, manager_id: manager}, (err2) => {
     if (err2) throw err2;
   });
-}
-
-function addEmployee() {
 }
 
 function viewDepartment(callback) {
   connection.query('SELECT * FROM department', (err, res) => {
     if (err) throw err;
     console.log('Here are the current departments\n');
-    console.table(res);
+    console.log(res);
     callback();
   });
 }

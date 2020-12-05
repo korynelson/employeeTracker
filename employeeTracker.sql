@@ -13,7 +13,7 @@ CREATE TABLE department(
 
 CREATE TABLE role(
 	id INTEGER NOT NULL AUTO_INCREMENT,
-    title VARCHAR(30) NOT NULL,
+    name VARCHAR(30) NOT NULL,
     salary DECIMAL NOT NULL,
     department_id INTEGER,
     PRIMARY KEY (id)
@@ -29,8 +29,7 @@ CREATE TABLE employee(
 );
 
 
---test data --
 INSERT INTO department (name) values ('Human');
 INSERT INTO department (name) values ('Brainstorming');
-INSERT INTO role (title, salary) values ('Thinker', 5 );  
-INSERT INTO role (title, salary) values ('brain', 7 );  
+INSERT INTO role (name, salary) values ('Thinker', 5 );  
+INSERT INTO role (name, salary) values ('brain', 7 );  
