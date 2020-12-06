@@ -48,7 +48,7 @@ function afterConnection() {
       } else if (answer.intitial === 'View Employees') {
         viewEmployees(anotherOne);
       } else if (answer.intitial === 'Update Employee Roles') {
-        updateEmployee();
+        updateEmployee(anotherOne);
       } else if (answer.intitial === 'LEAVE!!!!!!') {
         connection.end();
       } else{
@@ -78,8 +78,6 @@ function addDepartment(dept, callback) {
   connection.query('INSERT INTO department SET ?', { name: dept }, (err, res) => {
     if (err) throw err;
     connection.query('SELECT * FROM department', (err, res) =>{
-      console.log('Here is the updated department list\n');
-      console.table(res);
       callback();
     });
   });
@@ -88,13 +86,9 @@ function addDepartment(dept, callback) {
 function addRoleQuestions(callback) {
   connection.query('SELECT name FROM department', (err1, res1) => {
     if (err1) throw err1;
-    console.log('Here are the current departments\n');
-    console.table(res1);
 
     connection.query('SELECT * FROM role', (err, res) => {
       if (err) throw err;
-      console.log('Here are the current roles\n');
-      console.table(res);
       inquirer
         .prompt([{
           type: 'input',
@@ -116,8 +110,6 @@ function addRoleQuestions(callback) {
         .then((answer) => {
           connection.query(`SELECT id FROM department WHERE name="${answer.department}"`, (errDept, resID) => {
             if (errDept) throw errDept;
-            console.log('Here is the updated roles list\n');
-            console.log(resID[0].id);
             addRole(answer.name.toLowerCase(), answer.salary, resID[0].id, callback);
           });
         });
@@ -132,15 +124,11 @@ function addRole(name, money, deptid, callback) {
   });
 }
 
-function addEmployeeQuestions() {
+function addEmployeeQuestions(callback) {
   connection.query('SELECT name FROM role', (errRole, resRole) => {
     if (errRole) throw errRole;
-    console.table(resRole);
-
     connection.query('SELECT * FROM employee', (errEmp, resEmp) => {
       if (errEmp) throw errEmp;
-      console.log('Here are the current employees\n');
-      console.table(resEmp);
       inquirer
         .prompt([{
           type: 'input',
@@ -166,13 +154,12 @@ function addEmployeeQuestions() {
         ]).then((answer) => {
           connection.query(`SELECT id FROM role WHERE name="${answer.role}"`, (err, resID) => {
             if (err) throw err;
-            console.log('Here is the updated roles list\n');
-            console.log(resID[0].id);
             addEmployee(
               answer.firstname.toLowerCase(),
               answer.lastname.toLowerCase(),
               resID[0].id,
               answer.manager,
+              callback,
             );
           });
         });
@@ -180,17 +167,18 @@ function addEmployeeQuestions() {
   });
 }
 
-function addEmployee(firstname, lastname, roleID, manager) {
-  connection.query('INSERT INTO employee SET ?', { first_name: firstname, last_name: lastname, role_id: roleID, manager_id: manager}, (err2) => {
+function addEmployee(firstname, lastname, roleID, manager, callback) {
+  connection.query('INSERT INTO employee SET ?', { firstname: firstname, lastname: lastname, role_id: roleID, manager_id: manager}, (err2) => {
     if (err2) throw err2;
   });
+  callback();
 }
 
 function viewDepartment(callback) {
   connection.query('SELECT * FROM department', (err, res) => {
     if (err) throw err;
     console.log('Here are the current departments\n');
-    console.log(res);
+    console.table(res);
     callback();
   });
 }
@@ -213,7 +201,55 @@ function viewEmployees(callback) {
   });
 }
 
-function updateEmployee() {
+function updateEmployee(callback) {
+  console.log("update");
+  connection.query('SELECT firstname FROM employee', (err, res) => {
+    if (err) {
+      console.log(err);
+    }else {
+      const names = [];
+      const RES = JSON.parse(JSON.stringify(res));
+      RES.forEach((name) => {
+        names.push(name.firstname);
+      });
+      connection.query('SELECT * FROM employee', (errEmp, resEmp) => {
+        if (errEmp) throw errEmp;
+        console.table(resEmp)
+        connection.query('SELECT name FROM role', (errRol, resRol) => {
+          if (errRol) throw errRol;
+          const roles = [];
+          const RESROL = JSON.parse(JSON.stringify(resRol));
+          RESROL.forEach((role) => {
+            roles.push(role.name);
+          });
+          inquirer
+            .prompt([
+              {
+                type: 'list',
+                name: 'employeenames',
+                message: 'What employee would you like to update?',
+                choices: names,
+              },
+              {
+                type: 'list',
+                name: 'employeerole',
+                message: 'What is their new role?',
+                choices: roles,
+              },
+            ])
+            .then((answer) => {
+              connection.query(`SELECT id FROM role WHERE name = "${answer.employeerole}" `, (errRol2, resRol2) => {
+                if (errRol2) throw errRol2;
+                connection.query(`UPDATE employee SET role_id= "${resRol2[0].id}" WHERE firstname = "${answer.employeenames}" `, (errSet, resSet) => {
+                  if (errSet) throw errSet;
+                });
+              });
+              callback();
+            });
+        });
+      });
+    }
+  });
 }
 
 function anotherOne() {
